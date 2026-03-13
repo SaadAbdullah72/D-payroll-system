@@ -214,24 +214,12 @@ function App() {
             </div>
         </div>
 
-        <nav className="space-y-1.5 flex-1 px-2">
+        <nav className="space-y-4 flex-1 px-2">
           <SidebarItem 
             icon={Lucide.Layout} 
             label="Overview" 
             active={activeTab === "overview"} 
             onClick={() => {setActiveTab("overview"); setIsSidebarOpen(false);}} 
-          />
-          <SidebarItem 
-            icon={Lucide.Users2} 
-            label="Nodes" 
-            active={activeTab === "nodes"} 
-            onClick={() => {setActiveTab("nodes"); setIsSidebarOpen(false);}} 
-          />
-          <SidebarItem 
-            icon={Lucide.HardDrive} 
-            label="Storage" 
-            active={activeTab === "ledger"} 
-            onClick={() => {setActiveTab("ledger"); setIsSidebarOpen(false);}} 
           />
         </nav>
 
@@ -266,27 +254,30 @@ function App() {
       </aside>
 
       <main className="main-content">
-        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-12 gap-6">
+        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-16 gap-6">
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-            <div className="flex items-center gap-3 mb-3">
-                <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-blue-500/10">v4.0.1 Stable</span>
+            <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 sepolia-badge rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
+                    <Lucide.Globe size={14} className="animate-spin-slow" />
+                    Sepolia Testnet
+                </div>
                 <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,1)]" />
                 <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Network Verified</span>
             </div>
-            <h2 className="text-5xl xl:text-6xl font-black tracking-tighter text-white">System <span className="text-blue-500 italic">Nexus</span></h2>
+            <h2 className="text-5xl xl:text-7xl font-black tracking-tighter text-white">System <span className="text-blue-500 italic">Nexus</span></h2>
           </motion.div>
           
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }} 
             animate={{ scale: 1, opacity: 1 }}
-            className="flex items-center gap-4 bg-white/[0.03] p-2 rounded-3xl border border-white/5"
+            className="flex items-center gap-6 bg-white/[0.03] p-3 rounded-3xl border border-white/5"
           >
-            <div className="flex -space-x-2 px-2">
-                {[1,2,3].map(i => <div key={i} className="h-8 w-8 rounded-full border-2 border-bg-deep bg-slate-800" />)}
+            <div className="flex -space-x-3 px-2">
+                {[1,2,3,4].map(i => <div key={i} className="h-10 w-10 rounded-full border-2 border-bg-deep bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500">N{i}</div>)}
             </div>
-            <div className="pr-4 py-1 border-l border-white/10 pl-4">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Cluster Participants</p>
-                <p className="text-sm font-black text-blue-400">128 Nodes</p>
+            <div className="pr-6 py-1 border-l border-white/10 pl-6">
+                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Global Cluster</p>
+                <p className="text-lg font-black text-blue-400">Stable-Node</p>
             </div>
           </motion.div>
         </header>
@@ -419,22 +410,6 @@ function App() {
                 </div>
               </div>
             </>
-          )}
-
-          {activeTab === "nodes" && (
-             <motion.div variants={ITEM_VARIANTS} className="card-clean py-20 text-center">
-                <Lucide.Users2 size={48} className="mx-auto text-blue-500/20 mb-4" />
-                <h3 className="text-2xl font-black">Node Intelligence</h3>
-                <p className="text-slate-500 mt-2 font-bold tracking-widest uppercase text-[10px]">Neural monitoring arriving in next epoch.</p>
-             </motion.div>
-          )}
-
-          {activeTab === "ledger" && (
-             <motion.div variants={ITEM_VARIANTS} className="card-clean py-20 text-center">
-                <Lucide.HardDrive size={48} className="mx-auto text-blue-500/20 mb-4" />
-                <h3 className="text-2xl font-black">Immutable Storage</h3>
-                <p className="text-slate-500 mt-2 font-bold tracking-widest uppercase text-[10px]">Synchronizing historical blocks...</p>
-             </motion.div>
           )}
         </motion.div>
 

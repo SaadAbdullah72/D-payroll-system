@@ -101,7 +101,7 @@ body {
   width: var(--sidebar-width);
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
-  padding: 2rem 1rem;
+  padding: 3rem 1.5rem;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -263,6 +263,13 @@ h1, h2, h3, h4 {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.sepolia-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
 }
 
 /* Shimmer Animation */
