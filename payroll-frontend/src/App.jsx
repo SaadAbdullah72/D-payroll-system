@@ -199,7 +199,7 @@ function App() {
                     </div>
                     <div>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Registry Unit</p>
-                        <p className="text-xs font-bold text-slate-200">Mainnet-Alpha</p>
+                        <p className="text-xs font-bold text-slate-200">Testnet-Alpha</p>
                     </div>
                 </div>
                 <div className="space-y-2">
