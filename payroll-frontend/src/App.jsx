@@ -1,21 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import * as Lucide from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { contractAddress } from './contractAddress';
 import PayrollABI from './PayrollABI.json';
 
-const StatCard = ({ label, value, unit, icon: Icon, colorClass }) => (
-  <div className="glass p-7 rounded-[32px] border border-white/5 flex flex-col gap-3 transition-all hover:border-white/10 group cursor-default">
-    <div className="flex items-center gap-2.5 text-slate-500 group-hover:text-slate-400 transition-colors">
-      <div className={`p-1.5 rounded-lg bg-white/5 border border-white/5`}>
-        <Icon size={14} />
+// --- Premium UI Components ---
+
+const StatusPill = ({ label, colorClass = "bg-emerald-500" }) => (
+  <div className="flex items-center gap-2 bg-white/5 border border-white/5 pl-2 pr-3 py-1 rounded-full backdrop-blur-md">
+    <div className={`h-1.5 w-1.5 rounded-full ${colorClass} animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]`}></div>
+    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
+  </div>
+);
+
+const StatCard = ({ label, value, unit, icon: Icon, colorClass, gradient }) => (
+  <motion.div 
+    whileHover={{ y: -5, scale: 1.01 }}
+    className="glass p-8 rounded-[40px] border border-white/5 relative overflow-hidden group cursor-default"
+  >
+    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500`}></div>
+    <div className="flex justify-between items-start mb-6">
+      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-400 group-hover:text-white transition-colors duration-500">
+        <Icon size={20} />
       </div>
-      <span className="text-[10px] font-bold uppercase tracking-[0.15em]">{label}</span>
+      <StatusPill label="Real-time" />
     </div>
-    <div className="flex items-baseline gap-2 mt-1">
-      <span className="text-4xl font-black tracking-tight">{value}</span>
-      <span className={`text-xs font-black uppercase tracking-widest ${colorClass}`}>{unit}</span>
+    <div className="space-y-1">
+      <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-500 block">{label}</span>
+      <div className="flex items-baseline gap-2.5">
+        <motion.span 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-5xl font-black tracking-tighter"
+        >
+          {value}
+        </motion.span>
+        <span className={`text-xs font-black uppercase tracking-widest ${colorClass}`}>{unit}</span>
+      </div>
+    </div>
+  </motion.div>
+);
+
+const OnboardInput = ({ label, placeholder, icon: Icon, onChange }) => (
+  <div className="space-y-3 group">
+    <label className="text-[10px] font-black text-slate-500 uppercase ml-6 tracking-[0.3em] group-focus-within:text-blue-400 transition-colors uppercase">{label}</label>
+    <div className="relative">
+      <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors">
+        <Icon size={18} />
+      </div>
+      <input 
+        className="w-full bg-slate-900/40 border border-white/5 pl-14 pr-7 py-5 rounded-[30px] outline-none focus:border-blue-500/40 focus:ring-4 focus:ring-blue-500/5 transition-all font-semibold placeholder:text-slate-700 text-slate-200" 
+        placeholder={placeholder} 
+        onChange={(e) => onChange(e.target.value)} 
+      />
     </div>
   </div>
 );
@@ -105,195 +143,215 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white p-6 md:p-14 lg:p-20 font-sans selection:bg-blue-500/30">
-      {/* Refined subtle background accents */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-600/5 blur-[150px] rounded-full opacity-60"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/5 blur-[150px] rounded-full opacity-60"></div>
+    <div className="min-h-screen bg-black text-white p-6 md:p-16 lg:p-24 selection:bg-emerald-500/30 font-sans tracking-tight">
+      {/* 8-10s Looping Mesh Background */}
+      <div className="mesh-gradient-bg">
+        <div className="mesh-blob bg-blue-600/10 w-[60vw] h-[60vw] left-[-10%] top-[-10%]" />
+        <div className="mesh-blob bg-emerald-600/10 w-[50vw] h-[50vw] right-[-5%] bottom-[-5%] delay-[2s]" />
+        <div className="mesh-blob bg-indigo-600/5 w-[40vw] h-[40vw] top-[20%] right-[30%] delay-[4s]" />
       </div>
 
-      <div className="max-w-6xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-20">
-          <div className="space-y-3">
-            <h1 className="text-5xl font-black tracking-tighter italic flex items-center gap-4">
-              <div className="bg-white text-black p-2.5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                <Lucide.Wallet2 size={32} />
-              </div>
-              D-PAYROLL
-            </h1>
-            <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-md">Enterprise-grade decentralized payroll management for the decentralized future.</p>
-          </div>
+      <div className="max-w-7xl mx-auto z-10 relative">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-32">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-5">
+               <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 p-3 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                  <Lucide.Boxes size={34} className="text-black" />
+               </div>
+               <h1 className="text-6xl font-black italic tracking-tighter">D-PAYROLL</h1>
+            </div>
+            <p className="text-slate-500 font-bold text-xl leading-relaxed max-w-lg">
+               The futuristic layer for <span className="text-slate-300">automated institutional payroll</span> settlement on Ethereum.
+            </p>
+          </motion.div>
 
           {!account ? (
             <motion.button 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05, boxShadow: "0 0 50px rgba(255,255,255,0.15)" }}
+              whileTap={{ scale: 0.95 }}
               onClick={connectWallet} 
-              className="px-10 py-5 bg-white text-black rounded-3xl font-black text-lg shadow-[0_20px_40px_rgba(255,255,255,0.08)] hover:bg-slate-200 transition-all flex items-center gap-3 active:shadow-inner"
+              className="px-12 py-6 bg-white text-black rounded-[32px] font-black text-xl flex items-center gap-4 transition-all"
             >
-              Auth Network
-              <Lucide.Zap size={18} className="fill-black" />
+              AUTH PROTOCOL
+              <Lucide.ShieldCheck size={22} strokeWidth={3} />
             </motion.button>
           ) : (
-            <div className="flex items-center gap-5 bg-white/5 border border-white/10 px-8 py-4 rounded-[32px] backdrop-blur-xl">
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Authenticated</span>
-                <span className="text-sm font-mono font-bold text-blue-400">{account.slice(0,6)}...{account.slice(-4)}</span>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-6 glass-pill px-10 py-5 rounded-[40px]"
+            >
+              <div className="text-right">
+                <span className="text-[10px] text-slate-550 font-black uppercase tracking-[0.3em] block mb-1">Authenticated Terminal</span>
+                <span className="font-mono text-emerald-400 font-bold tracking-widest">{account.slice(0,6)}...{account.slice(-4)}</span>
               </div>
-              <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center border border-white/20">
-                <Lucide.Fingerprint size={22} />
+              <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-blue-600 p-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <Lucide.Binary size={24} className="text-white" />
               </div>
-            </div>
+            </motion.div>
           )}
         </header>
 
-        {/* Executive Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-          <StatCard label="Internal Treasury" value={contractBal} unit="ETH" icon={Lucide.BarChart3} colorClass="text-blue-500" />
-          <StatCard label="Personnel Nodes" value={employees.length} unit="Members" icon={Lucide.Cpu} colorClass="text-indigo-500" />
-          <div className="glass p-7 rounded-[32px] border border-white/5 flex items-center gap-5 transition-all hover:border-emerald-500/20 group">
-             <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                <Lucide.ShieldCheck size={28} />
-             </div>
-             <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-550 uppercase tracking-[0.15em] block">Status Protocol</span>
-                <span className="text-emerald-400 font-black tracking-tight text-lg">ENCRYPTED LIVE</span>
-             </div>
+        {/* Global Overview Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-32">
+          <StatCard label="Internal Treasury" value={contractBal} unit="ETH" icon={Lucide.Waves} colorClass="text-blue-500" gradient="from-blue-600 to-indigo-600" />
+          <StatCard label="Personnel Nodes" value={employees.length} unit="Units" icon={Lucide.Cpu} colorClass="text-emerald-500" gradient="from-emerald-500 to-teal-600" />
+          <div className="glass p-8 rounded-[40px] border border-white/5 flex items-center gap-6 group hover:border-emerald-500/20 transition-all">
+            <div className="h-16 w-16 rounded-[22px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/10 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-500">
+               <Lucide.Activity size={32} />
+            </div>
+            <div className="space-y-1">
+               <span className="text-[11px] font-black text-slate-550 uppercase tracking-[0.25em] block">Status Protocol</span>
+               <span className="text-emerald-400 font-black tracking-tight text-[22px] flex items-center gap-2">
+                  ENCRYPTED LIVE
+                  <div className="h-2 w-2 bg-emerald-500 rounded-full animate-ping"></div>
+               </span>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          {/* Action Modules */}
-          <div className="space-y-10">
-            <section className="glass p-10 rounded-[48px] border border-white/5 relative overflow-hidden transition-all hover:border-white/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          {/* Action Center - 5 cols */}
+          <div className="lg:col-span-5 space-y-12">
+            <section className="glass p-11 rounded-[50px] relative overflow-hidden group">
                {!isAdmin && account && (
-                 <div className="absolute inset-0 bg-black/85 backdrop-blur-lg z-20 flex flex-col items-center justify-center p-12 text-center ring-1 ring-white/10 rounded-[48px]">
-                    <div className="h-16 w-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-6">
-                      <Lucide.Lock size={28} className="text-slate-600" />
+                 <div className="absolute inset-0 bg-black/95 backdrop-blur-2xl z-30 flex flex-col items-center justify-center p-14 text-center">
+                    <div className="h-20 w-20 bg-white/5 border border-white/5 rounded-[24px] flex items-center justify-center mb-8 rotate-12 transition-transform hover:rotate-0">
+                      <Lucide.Infinity size={36} className="text-slate-700" />
                     </div>
-                    <h3 className="text-2xl font-black tracking-tight">Access Restricted</h3>
-                    <p className="text-slate-500 text-sm mt-3 leading-relaxed max-w-xs">
-                       Administrative privileges are required for personnel onboarding. Please authenticate with the Architect wallet.
+                    <h3 className="text-3xl font-black tracking-tighter">Permission Denied</h3>
+                    <p className="text-slate-500 text-lg mt-4 leading-relaxed font-medium">
+                       Institutional onboarding requires Architect keys. Please re-authenticate via the core governance wallet.
                     </p>
                  </div>
                )}
-               <div className="flex items-center justify-between mb-10">
-                  <h3 className="text-2xl font-black tracking-tight flex items-center gap-4">
-                    <Lucide.UserPlus2 size={24} className="text-blue-500" />
+               <div className="flex justify-between items-center mb-12">
+                  <h3 className="text-3xl font-black flex items-center gap-5 tracking-tighter">
+                    <Lucide.Zap size={28} className="text-emerald-400" />
                     Onboard Staff
                   </h3>
-                  <span className="text-[9px] font-black text-slate-600 bg-white/5 px-3 py-1 rounded-full uppercase tracking-widest">Protocol-Level</span>
+                  <div className="px-5 py-2 bg-white/5 rounded-full border border-white/5 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">Secure Module</div>
                </div>
-               <div className="space-y-6">
+               
+               <div className="space-y-8">
                  {[
-                   { label: "Personel Name", placeholder: "e.g. Saad Abdullah", set: setEmpName },
-                   { label: "Public Receipt Address", placeholder: "0x...", set: setEmpAddress },
-                   { label: "Monthly Liquidity (ETH)", placeholder: "0.25", set: setSalary }
+                   { label: "Personnel Identifier", placeholder: "e.g. Satoshi Nakamoto", icon: Lucide.User, set: setEmpName },
+                   { label: "Public Receipt Key", placeholder: "0x...", icon: Lucide.Database, set: setEmpAddress },
+                   { label: "Liquidity Stream (ETH)", placeholder: "0.20", icon: Lucide.Zap, set: setSalary }
                  ].map((field, i) => (
-                   <div key={i} className="space-y-2.5">
-                     <label className="text-[10px] font-black text-slate-500 uppercase ml-5 tracking-[0.2em]">{field.label}</label>
-                     <input 
-                       className="w-full bg-slate-900/50 border border-white/5 p-5 rounded-[24px] outline-none focus:border-blue-500/40 focus:bg-slate-900 transition-all font-medium placeholder:text-slate-700" 
-                       placeholder={field.placeholder} 
-                       onChange={(e)=>field.set(e.target.value)} 
-                     />
-                   </div>
+                   <OnboardInput key={i} label={field.label} placeholder={field.placeholder} icon={field.icon} onChange={field.set} />
                  ))}
+
                  <motion.button 
-                    whileHover={{ scale: 1.01, y: -2 }}
-                    whileTap={{ scale: 0.99 }}
+                    whileHover={{ scale: 1.02, y: -4, boxShadow: "0 20px 60px rgba(16,185,129,0.3)" }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={addEmployee} 
                     disabled={loading || !isAdmin} 
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 py-6 rounded-[28px] font-black text-lg hover:shadow-[0_15px_40px_rgba(37,99,235,0.2)] transition-all active:scale-95 disabled:opacity-30 disabled:grayscale mt-4"
+                    className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 py-7 rounded-[32px] font-black text-xl shadow-xl shadow-emerald-500/10 transition-all mt-6"
                  >
-                   {loading ? "COMMITTING TO CHAIN..." : "COMMENCE ONBOARDING"}
+                   {loading ? "COMMITTING SECURELY..." : "COMMENCE ONBOARDING"}
                  </motion.button>
                </div>
             </section>
 
-            <section className="bg-gradient-to-br from-emerald-600/10 via-transparent to-transparent p-10 rounded-[48px] border border-emerald-500/15 relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-12 text-emerald-500/5 pointer-events-none group-hover:scale-110 transition-transform duration-700">
-                 <Lucide.Zap size={100} strokeWidth={1} />
+            <motion.section 
+               whileHover={{ scale: 1.02 }}
+               className="bg-gradient-to-br from-blue-600/10 via-transparent to-transparent p-12 rounded-[50px] border border-blue-500/20 relative group overflow-hidden"
+            >
+               <div className="absolute -top-10 -right-10 opacity-5 group-hover:scale-125 transition-transform duration-1000">
+                  <Lucide.Cpu size={250} strokeWidth={1} />
                </div>
-               <h3 className="text-2xl font-black mb-5 flex items-center gap-4 text-emerald-400">
-                 <Lucide.CreditCard size={24} />
-                 Staff Portal
+               <h3 className="text-3xl font-black mb-6 flex items-center gap-5 text-blue-400 tracking-tighter">
+                  <Lucide.Database size={28} />
+                  Staff Portal
                </h3>
-               <p className="text-slate-400 text-sm mb-10 leading-relaxed max-w-sm">
-                 Claims are locked to 30-day settlement cycles. Ensure you are authenticated with the signature address registered on the protocol.
+               <p className="text-slate-500 text-lg mb-10 leading-relaxed font-medium">
+                  30-day epoch locked. Liquidate your earnings only after protocol validation.
                </p>
                <motion.button 
-                 whileHover={{ scale: 1.01 }}
-                 whileTap={{ scale: 0.99 }}
+                 whileHover={{ scale: 1.02, x: 5 }}
                  onClick={claimSalary} 
                  disabled={loading} 
-                 className="w-full bg-emerald-600/90 py-6 rounded-[28px] font-black text-lg hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-900/10 active:scale-95 flex items-center justify-center gap-3"
+                 className="w-full bg-blue-600 py-7 rounded-[32px] font-black text-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-4 group"
                >
-                 {loading ? "VERIFYING SETTLEMENT..." : "EXECUTE SETTLEMENT"}
-                 <Lucide.ArrowUpRight size={18} />
+                 {loading ? "VALIDATING..." : "EXECUTE SETTLEMENT"}
+                 <Lucide.ArrowUpRight size={22} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
                </motion.button>
-            </section>
+            </motion.section>
           </div>
 
-          {/* Data Ledger */}
-          <section className="glass p-10 rounded-[48px] border border-white/5 h-full flex flex-col transition-all hover:border-white/10">
-            <div className="flex items-center justify-between mb-12">
-               <h3 className="text-2xl font-black tracking-tight flex items-center gap-4 text-slate-300">
-                 <Lucide.Layers2 size={24} className="text-indigo-400" />
-                 Ledger History
-               </h3>
-               <div className="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
-                 <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">On-Chain</span>
+          {/* Data Ledger - 7 cols */}
+          <div className="lg:col-span-7">
+            <section className="glass p-12 rounded-[60px] h-full flex flex-col hover:border-white/10 transition-all duration-700">
+               <div className="flex items-center justify-between mb-16 px-4">
+                  <h3 className="text-3xl font-black flex items-center gap-5 tracking-tighter">
+                    <Lucide.ListTree size={28} className="text-slate-500" />
+                    Ledger History
+                  </h3>
+                  <div className="bg-emerald-500/10 text-emerald-500 px-6 py-2.5 rounded-full border border-emerald-500/10 text-[10px] font-black uppercase tracking-[0.3em]">Institutional Grade</div>
                </div>
-            </div>
 
-            <div className="space-y-5 flex-1 overflow-y-auto pr-3 custom-scrollbar max-h-[750px]">
-              {employees.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center py-32 border-2 border-dashed border-white/5 rounded-[40px] gap-6 group">
-                  <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center transition-transform group-hover:rotate-12">
-                     <Lucide.Inbox size={32} className="text-slate-700" />
-                  </div>
-                  <p className="text-slate-600 font-bold uppercase tracking-widest text-xs">Ledger Empty</p>
-                </div>
-              ) : (
-                employees.map((emp, i) => (
-                  <motion.div 
-                    key={i} 
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="bg-white/5 border border-white/5 p-6 rounded-[32px] flex justify-between items-center group hover:bg-white/[0.08] hover:border-blue-500/20 transition-all cursor-pointer"
-                  >
-                    <div className="flex items-center gap-5">
-                      <div className="h-14 w-14 rounded-2xl bg-black border border-white/5 flex items-center justify-center text-slate-600 transition-colors group-hover:text-blue-400">
-                        <Lucide.User size={24} />
+               <div className="space-y-6 flex-1 overflow-y-auto pr-4 custom-scrollbar max-h-[900px]">
+                  <AnimatePresence>
+                    {employees.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center py-48 border-2 border-dashed border-white/5 rounded-[50px] gap-8">
+                        <div className="h-28 w-28 bg-white/5 rounded-[40px] flex items-center justify-center animate-bounce">
+                           <Lucide.Ghost size={44} className="text-slate-800" />
+                        </div>
+                        <p className="text-slate-700 font-black uppercase tracking-[0.4em] text-sm">Waiting for Data Nodes</p>
                       </div>
-                      <div>
-                        <p className="font-black text-lg group-hover:text-white transition-colors">{emp.name}</p>
-                        <p className="text-[10px] font-mono text-slate-500 mt-1 tracking-tighter">{emp.address.slice(0,25)}...</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-black text-2xl tracking-tighter">{emp.salary} <span className="text-xs text-blue-500 font-black italic ml-1">ETH</span></p>
-                      <div className="flex items-center justify-end gap-2 mt-1.5">
-                         <span className="text-[9px] font-black text-emerald-500 border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1 rounded-lg uppercase tracking-widest">Active Settlement</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </section>
+                    ) : (
+                      employees.map((emp, i) => (
+                        <motion.div 
+                          key={i} 
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1, duration: 0.6 }}
+                          className="bg-white/5 border border-white/5 p-8 rounded-[40px] flex justify-between items-center group hover:bg-white/[0.08] hover:border-blue-500/30 transition-all cursor-pointer"
+                        >
+                          <div className="flex items-center gap-7">
+                             <div className="h-20 w-20 rounded-[28px] bg-gradient-to-br from-slate-900 to-black border border-white/10 flex items-center justify-center text-slate-700 transition-all duration-500 group-hover:text-blue-500 group-hover:border-blue-500/20 shadow-inner">
+                                <Lucide.UserCircle size={40} strokeWidth={1.5} />
+                             </div>
+                             <div>
+                                <p className="font-black text-2xl group-hover:text-white transition-colors">{emp.name}</p>
+                                <p className="text-sm font-mono text-slate-500 mt-2 tracking-tighter opacity-60 group-hover:opacity-100 transition-opacity">{emp.address}</p>
+                             </div>
+                          </div>
+                          <div className="text-right">
+                             <p className="font-black text-4xl tracking-tighter">{emp.salary} <span className="text-xs text-emerald-500 uppercase italic ml-1 font-black">ETH</span></p>
+                             <div className="flex items-center justify-end gap-3 mt-3">
+                                <span className="text-[10px] font-black text-emerald-500 border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 rounded-xl uppercase tracking-[0.2em]">Active Settlement</span>
+                             </div>
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+               </div>
+            </section>
+          </div>
         </div>
 
-        <footer className="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity pb-10">
-            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Decentralized Payroll Architecture © 2026</p>
-            <div className="flex gap-10 items-center">
-               <span className="text-[10px] font-black uppercase tracking-widest cursor-pointer hover:text-blue-400 transition-colors">Documentation</span>
-               <span className="text-[10px] font-black uppercase tracking-widest cursor-pointer hover:text-blue-400 transition-colors">API System</span>
-               <span className="text-[10px] font-black uppercase tracking-widest cursor-pointer hover:text-blue-400 transition-colors">Network Status</span>
-            </div>
+        <footer className="mt-48 pb-20 border-t border-white/5 pt-16 flex flex-col lg:flex-row justify-between items-center gap-12 opacity-30 hover:opacity-100 transition-all duration-700">
+           <div className="flex items-center gap-6">
+              <div className="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-slate-500">
+                 <Lucide.Atom size={20} />
+              </div>
+              <p className="text-[11px] text-slate-500 font-black uppercase tracking-[0.5em]">Decentralized Payroll Architecture © 2026</p>
+           </div>
+           
+           <div className="flex gap-16 items-center">
+             {["Infrastructure", "Compliance", "API Protocol", "Network"].map((item, i) => (
+               <span key={i} className="text-[11px] font-black uppercase tracking-[0.3em] cursor-pointer hover:text-emerald-500 transition-colors">{item}</span>
+             ))}
+           </div>
         </footer>
       </div>
     </div>

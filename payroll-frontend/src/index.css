@@ -1,21 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --bg-dark: 240 10% 3.9%;
-  --bg-card: 240 10% 5%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --accent: 240 4.8% 10%;
-  --accent-foreground: 0 0% 98%;
-  --border: 240 3.7% 12%;
-  --muted: 240 3.7% 10%;
-  --muted-foreground: 240 5% 64.9%;
+  --bg-dark: 240 10% 2%;
+  --bg-card: 240 10% 4%;
+  --primary-neon: 161 94% 30%; /* #10B981 emerald-600 */
+  --primary-glow: 161 94% 45%;
+  --blue-electric: 217 91% 60%; /* #3B82F6 blue-500 */
+  --blue-glow: 217 91% 70%;
+  --border: 240 5% 10%;
+  --muted: 240 5% 64.9%;
   
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2.5rem;
-  --spacing-xl: 4rem;
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 24px;
 }
 
 * {
@@ -28,28 +25,67 @@
 body {
   background-color: hsl(var(--bg-dark));
   background-image: 
-    radial-gradient(at 0% 0%, hsla(217, 91%, 60%, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(240, 10%, 6%, 0.05) 0px, transparent 50%);
+    radial-gradient(circle at 0% 0%, hsla(217, 91%, 60%, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, hsla(161, 94%, 30%, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, hsla(240, 10%, 2%, 1) 0%, transparent 100%);
+  background-attachment: fixed;
   color: white;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
-/* Glassmorphism Utilities */
+/* Advanced Mesh Gradient Loop */
+.mesh-gradient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -20;
+  overflow: hidden;
+  opacity: 0.4;
+}
+
+.mesh-blob {
+  position: absolute;
+  filter: blur(80px);
+  border-radius: 50%;
+  animation: blob-float 20s infinite ease-in-out;
+}
+
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(10vw, 15vh) scale(1.1); }
+  66% { transform: translate(-5vw, 20vh) scale(0.9); }
+}
+
+/* Premium Glass & Layout */
 .glass {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
-.glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%);
-  backdrop-filter: blur(16px);
+.glass-pill {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+.card-glow-green:hover {
+  border-color: hsla(var(--primary-glow), 0.3);
+  box-shadow: 0 0 40px hsla(var(--primary-glow), 0.05);
+}
+
+.card-glow-blue:hover {
+  border-color: hsla(var(--blue-glow), 0.3);
+  box-shadow: 0 0 40px hsla(var(--blue-glow), 0.05);
 }
 
 /* Custom Scrollbar */
