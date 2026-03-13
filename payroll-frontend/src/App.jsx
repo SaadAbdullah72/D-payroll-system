@@ -5,55 +5,40 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { contractAddress } from './contractAddress';
 import PayrollABI from './PayrollABI.json';
 
-// --- Premium UI Components ---
+// --- Professional Dashboard Components ---
 
-const StatusPill = ({ label, colorClass = "bg-emerald-500" }) => (
-  <div className="flex items-center gap-2 bg-white/5 border border-white/5 pl-2 pr-3 py-1 rounded-full backdrop-blur-md">
-    <div className={`h-1.5 w-1.5 rounded-full ${colorClass} animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]`}></div>
-    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
-  </div>
+const SidebarItem = ({ icon: Icon, label, active = false, onClick }) => (
+  <button 
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+      active 
+      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+      : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+    }`}
+  >
+    <Icon size={20} className={active ? 'text-white' : 'group-hover:text-blue-400'} />
+    <span className="font-medium text-sm">{label}</span>
+  </button>
 );
 
-const StatCard = ({ label, value, unit, icon: Icon, colorClass, gradient }) => (
-  <motion.div 
-    whileHover={{ y: -5, scale: 1.01 }}
-    className="glass p-8 rounded-[40px] border border-white/5 relative overflow-hidden group cursor-default"
-  >
-    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500`}></div>
-    <div className="flex justify-between items-start mb-6">
-      <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5 text-slate-400 group-hover:text-white transition-colors duration-500">
+const MetricCard = ({ label, value, unit, icon: Icon, trend }) => (
+  <div className="card-clean space-y-4">
+    <div className="flex justify-between items-start">
+      <div className="p-2.5 bg-blue-500/10 rounded-lg text-blue-500">
         <Icon size={20} />
       </div>
-      <StatusPill label="Real-time" />
+      {trend && (
+        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+          {trend}
+        </span>
+      )}
     </div>
-    <div className="space-y-1">
-      <span className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-500 block">{label}</span>
-      <div className="flex items-baseline gap-2.5">
-        <motion.span 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-5xl font-black tracking-tighter"
-        >
-          {value}
-        </motion.span>
-        <span className={`text-xs font-black uppercase tracking-widest ${colorClass}`}>{unit}</span>
+    <div>
+      <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{label}</p>
+      <div className="flex items-baseline gap-1 mt-1">
+        <h4 className="text-3xl font-bold tracking-tight">{value}</h4>
+        <span className="text-xs font-bold text-slate-500 lowercase">{unit}</span>
       </div>
-    </div>
-  </motion.div>
-);
-
-const OnboardInput = ({ label, placeholder, icon: Icon, onChange }) => (
-  <div className="space-y-3 group">
-    <label className="text-[10px] font-black text-slate-500 uppercase ml-6 tracking-[0.3em] group-focus-within:text-blue-400 transition-colors uppercase">{label}</label>
-    <div className="relative">
-      <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors">
-        <Icon size={18} />
-      </div>
-      <input 
-        className="w-full bg-slate-900/40 border border-white/5 pl-14 pr-7 py-5 rounded-[30px] outline-none focus:border-blue-500/40 focus:ring-4 focus:ring-blue-500/5 transition-all font-semibold placeholder:text-slate-700 text-slate-200" 
-        placeholder={placeholder} 
-        onChange={(e) => onChange(e.target.value)} 
-      />
     </div>
   </div>
 );
@@ -67,6 +52,7 @@ function App() {
   const [salary, setSalary] = useState("");
   const [contractBal, setContractBal] = useState("0");
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const fetchData = async () => {
     try {
@@ -143,217 +129,188 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 md:p-16 lg:p-24 selection:bg-emerald-500/30 font-sans tracking-tight">
-      {/* 8-10s Looping Mesh Background */}
-      <div className="mesh-gradient-bg">
-        <div className="mesh-blob bg-blue-600/10 w-[60vw] h-[60vw] left-[-10%] top-[-10%]" />
-        <div className="mesh-blob bg-emerald-600/10 w-[50vw] h-[50vw] right-[-5%] bottom-[-5%] delay-[2s]" />
-        <div className="mesh-blob bg-indigo-600/5 w-[40vw] h-[40vw] top-[20%] right-[30%] delay-[4s]" />
-      </div>
+    <div className="app-container">
+      {/* Sidebar Navigation */}
+      <aside className="sidebar">
+        <div className="flex items-center gap-3 mb-12 px-2">
+          <div className="bg-blue-600 p-2 rounded-lg">
+            <Lucide.LayoutDashboard size={24} className="text-white" />
+          </div>
+          <h1 className="text-xl font-extrabold tracking-tight text-white">D-PAYROLL</h1>
+        </div>
 
-      <div className="max-w-7xl mx-auto z-10 relative">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-32">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center gap-5">
-               <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 p-3 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                  <Lucide.Boxes size={34} className="text-black" />
-               </div>
-               <h1 className="text-6xl font-black italic tracking-tighter">D-PAYROLL</h1>
-            </div>
-            <p className="text-slate-500 font-bold text-xl leading-relaxed max-w-lg">
-               The futuristic layer for <span className="text-slate-300">automated institutional payroll</span> settlement on Ethereum.
-            </p>
-          </motion.div>
+        <nav className="space-y-2 flex-1">
+          <SidebarItem 
+            icon={Lucide.PieChart} 
+            label="Dashboard" 
+            active={activeTab === "dashboard"} 
+            onClick={() => setActiveTab("dashboard")} 
+          />
+          <SidebarItem 
+            icon={Lucide.Users} 
+            label="Personnel" 
+            active={activeTab === "personnel"} 
+            onClick={() => setActiveTab("personnel")} 
+          />
+          <SidebarItem 
+            icon={Lucide.History} 
+            label="Ledger" 
+            active={activeTab === "ledger"} 
+            onClick={() => setActiveTab("ledger")} 
+          />
+        </nav>
 
+        <div className="pt-8 border-t border-white/5 space-y-4">
           {!account ? (
-            <motion.button 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.05, boxShadow: "0 0 50px rgba(255,255,255,0.15)" }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectWallet} 
-              className="px-12 py-6 bg-white text-black rounded-[32px] font-black text-xl flex items-center gap-4 transition-all"
+            <button 
+              onClick={connectWallet}
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm transition-all"
             >
-              AUTH PROTOCOL
-              <Lucide.ShieldCheck size={22} strokeWidth={3} />
-            </motion.button>
+              <Lucide.Wallet size={18} />
+              Connect Wallet
+            </button>
           ) : (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-6 glass-pill px-10 py-5 rounded-[40px]"
-            >
-              <div className="text-right">
-                <span className="text-[10px] text-slate-550 font-black uppercase tracking-[0.3em] block mb-1">Authenticated Terminal</span>
-                <span className="font-mono text-emerald-400 font-bold tracking-widest">{account.slice(0,6)}...{account.slice(-4)}</span>
+            <div className="bg-slate-900/50 p-4 rounded-xl border border-white/5 flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                <Lucide.User size={16} />
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-blue-600 p-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                <Lucide.Binary size={24} className="text-white" />
+              <div className="overflow-hidden">
+                <p className="text-[10px] font-bold text-slate-500 uppercase">Authenticated</p>
+                <p className="text-xs font-mono font-bold text-slate-300 truncate">{account}</p>
               </div>
-            </motion.div>
+            </div>
           )}
+        </div>
+      </aside>
+
+      {/* Main Workspace */}
+      <main className="main-content">
+        <header className="flex justify-between items-center mb-12">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">System Overview</h2>
+            <p className="text-slate-400 mt-1">Institutional-grade payroll settlement network.</p>
+          </div>
+          <div className="flex items-center gap-3 bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full border border-emerald-500/10 text-[10px] font-black uppercase tracking-[0.2em]">
+            <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+            Network Live
+          </div>
         </header>
 
-        {/* Global Overview Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-32">
-          <StatCard label="Internal Treasury" value={contractBal} unit="ETH" icon={Lucide.Waves} colorClass="text-blue-500" gradient="from-blue-600 to-indigo-600" />
-          <StatCard label="Personnel Nodes" value={employees.length} unit="Units" icon={Lucide.Cpu} colorClass="text-emerald-500" gradient="from-emerald-500 to-teal-600" />
-          <div className="glass p-8 rounded-[40px] border border-white/5 flex items-center gap-6 group hover:border-emerald-500/20 transition-all">
-            <div className="h-16 w-16 rounded-[22px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/10 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-500">
-               <Lucide.Activity size={32} />
-            </div>
-            <div className="space-y-1">
-               <span className="text-[11px] font-black text-slate-550 uppercase tracking-[0.25em] block">Status Protocol</span>
-               <span className="text-emerald-400 font-black tracking-tight text-[22px] flex items-center gap-2">
-                  ENCRYPTED LIVE
-                  <div className="h-2 w-2 bg-emerald-500 rounded-full animate-ping"></div>
-               </span>
-            </div>
-          </div>
+        {/* Top Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <MetricCard label="Internal Treasury" value={contractBal} unit="ETH" icon={Lucide.Database} trend="+2.4%" />
+          <MetricCard label="Active Personnel" value={employees.length} unit="Nodes" icon={Lucide.Cpu} />
+          <MetricCard label="Settlement Cycle" value="30" unit="Days" icon={Lucide.RefreshCcw} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          {/* Action Center - 5 cols */}
-          <div className="lg:col-span-5 space-y-12">
-            <section className="glass p-11 rounded-[50px] relative overflow-hidden group">
-               {!isAdmin && account && (
-                 <div className="absolute inset-0 bg-black/95 backdrop-blur-2xl z-30 flex flex-col items-center justify-center p-14 text-center">
-                    <div className="h-20 w-20 bg-white/5 border border-white/5 rounded-[24px] flex items-center justify-center mb-8 rotate-12 transition-transform hover:rotate-0">
-                      <Lucide.Infinity size={36} className="text-slate-700" />
-                    </div>
-                    <h3 className="text-3xl font-black tracking-tighter">Permission Denied</h3>
-                    <p className="text-slate-500 text-lg mt-4 leading-relaxed font-medium">
-                       Institutional onboarding requires Architect keys. Please re-authenticate via the core governance wallet.
-                    </p>
-                 </div>
-               )}
-               <div className="flex justify-between items-center mb-12">
-                  <h3 className="text-3xl font-black flex items-center gap-5 tracking-tighter">
-                    <Lucide.Zap size={28} className="text-emerald-400" />
-                    Onboard Staff
-                  </h3>
-                  <div className="px-5 py-2 bg-white/5 rounded-full border border-white/5 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">Secure Module</div>
-               </div>
-               
-               <div className="space-y-8">
-                 {[
-                   { label: "Personnel Identifier", placeholder: "e.g. Satoshi Nakamoto", icon: Lucide.User, set: setEmpName },
-                   { label: "Public Receipt Key", placeholder: "0x...", icon: Lucide.Database, set: setEmpAddress },
-                   { label: "Liquidity Stream (ETH)", placeholder: "0.20", icon: Lucide.Zap, set: setSalary }
-                 ].map((field, i) => (
-                   <OnboardInput key={i} label={field.label} placeholder={field.placeholder} icon={field.icon} onChange={field.set} />
-                 ))}
-
-                 <motion.button 
-                    whileHover={{ scale: 1.02, y: -4, boxShadow: "0 20px 60px rgba(16,185,129,0.3)" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={addEmployee} 
-                    disabled={loading || !isAdmin} 
-                    className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 py-7 rounded-[32px] font-black text-xl shadow-xl shadow-emerald-500/10 transition-all mt-6"
-                 >
-                   {loading ? "COMMITTING SECURELY..." : "COMMENCE ONBOARDING"}
-                 </motion.button>
-               </div>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+          {/* Action Modules */}
+          <div className="xl:col-span-4 space-y-8">
+            <section className="card-clean relative overflow-hidden">
+              {!isAdmin && account && (
+                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
+                  <Lucide.Lock size={32} className="text-slate-600 mb-4" />
+                  <h4 className="font-bold text-slate-200">Admin Required</h4>
+                  <p className="text-xs text-slate-500 mt-2">Personnel onboarding is restricted to governance wallets.</p>
+                </div>
+              )}
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                <Lucide.UserPlus size={20} className="text-blue-500" />
+                Onboard Personnel
+              </h3>
+              
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Full Name</label>
+                  <input className="input-field" placeholder="e.g. Satoshi Nakamoto" onChange={(e) => setEmpName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Wallet Address</label>
+                  <input className="input-field" placeholder="0x..." onChange={(e) => setEmpAddress(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Monthly Salary (ETH)</label>
+                  <input className="input-field" placeholder="0.25" onChange={(e) => setSalary(e.target.value)} />
+                </div>
+                <button 
+                  onClick={addEmployee}
+                  disabled={loading || !isAdmin}
+                  className="w-full btn-primary disabled:opacity-50 mt-2"
+                >
+                  {loading ? "Processing..." : "Add Personnel"}
+                </button>
+              </div>
             </section>
 
-            <motion.section 
-               whileHover={{ scale: 1.02 }}
-               className="bg-gradient-to-br from-blue-600/10 via-transparent to-transparent p-12 rounded-[50px] border border-blue-500/20 relative group overflow-hidden"
-            >
-               <div className="absolute -top-10 -right-10 opacity-5 group-hover:scale-125 transition-transform duration-1000">
-                  <Lucide.Cpu size={250} strokeWidth={1} />
-               </div>
-               <h3 className="text-3xl font-black mb-6 flex items-center gap-5 text-blue-400 tracking-tighter">
-                  <Lucide.Database size={28} />
-                  Staff Portal
-               </h3>
-               <p className="text-slate-500 text-lg mb-10 leading-relaxed font-medium">
-                  30-day epoch locked. Liquidate your earnings only after protocol validation.
-               </p>
-               <motion.button 
-                 whileHover={{ scale: 1.02, x: 5 }}
-                 onClick={claimSalary} 
-                 disabled={loading} 
-                 className="w-full bg-blue-600 py-7 rounded-[32px] font-black text-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-4 group"
-               >
-                 {loading ? "VALIDATING..." : "EXECUTE SETTLEMENT"}
-                 <Lucide.ArrowUpRight size={22} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-               </motion.button>
-            </motion.section>
+            <section className="card-clean bg-emerald-500/5 border-emerald-500/10">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-emerald-500">
+                <Lucide.CreditCard size={20} />
+                Portal Access
+              </h3>
+              <p className="text-slate-400 text-xs leading-relaxed mb-6">
+                Claim registered earnings for the current epoch. Settlement requires protocol validation.
+              </p>
+              <button 
+                onClick={claimSalary}
+                disabled={loading}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50"
+              >
+                {loading ? "Verifying..." : "Execute Claim"}
+              </button>
+            </section>
           </div>
 
-          {/* Data Ledger - 7 cols */}
-          <div className="lg:col-span-7">
-            <section className="glass p-12 rounded-[60px] h-full flex flex-col hover:border-white/10 transition-all duration-700">
-               <div className="flex items-center justify-between mb-16 px-4">
-                  <h3 className="text-3xl font-black flex items-center gap-5 tracking-tighter">
-                    <Lucide.ListTree size={28} className="text-slate-500" />
-                    Ledger History
-                  </h3>
-                  <div className="bg-emerald-500/10 text-emerald-500 px-6 py-2.5 rounded-full border border-emerald-500/10 text-[10px] font-black uppercase tracking-[0.3em]">Institutional Grade</div>
-               </div>
+          {/* Data Ledger */}
+          <div className="xl:col-span-8">
+            <section className="card-clean h-full">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-lg font-bold">Personnel Ledger</h3>
+                <span className="text-[10px] font-bold text-slate-500 uppercase bg-slate-900 px-3 py-1 rounded-md">Total Records: {employees.length}</span>
+              </div>
 
-               <div className="space-y-6 flex-1 overflow-y-auto pr-4 custom-scrollbar max-h-[900px]">
-                  <AnimatePresence>
+              <div className="overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-slate-500 text-left border-b border-white/5 pb-4">
+                      <th className="font-semibold pb-4">Name</th>
+                      <th className="font-semibold pb-4">Wallet Address</th>
+                      <th className="font-semibold pb-4 text-right">Salary</th>
+                      <th className="font-semibold pb-4 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
                     {employees.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-48 border-2 border-dashed border-white/5 rounded-[50px] gap-8">
-                        <div className="h-28 w-28 bg-white/5 rounded-[40px] flex items-center justify-center animate-bounce">
-                           <Lucide.Ghost size={44} className="text-slate-800" />
-                        </div>
-                        <p className="text-slate-700 font-black uppercase tracking-[0.4em] text-sm">Waiting for Data Nodes</p>
-                      </div>
+                      <tr>
+                        <td colSpan="4" className="py-20 text-center text-slate-600 italic">No personnel nodes found on the registry.</td>
+                      </tr>
                     ) : (
                       employees.map((emp, i) => (
-                        <motion.div 
-                          key={i} 
-                          initial={{ opacity: 0, y: 30 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1, duration: 0.6 }}
-                          className="bg-white/5 border border-white/5 p-8 rounded-[40px] flex justify-between items-center group hover:bg-white/[0.08] hover:border-blue-500/30 transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center gap-7">
-                             <div className="h-20 w-20 rounded-[28px] bg-gradient-to-br from-slate-900 to-black border border-white/10 flex items-center justify-center text-slate-700 transition-all duration-500 group-hover:text-blue-500 group-hover:border-blue-500/20 shadow-inner">
-                                <Lucide.UserCircle size={40} strokeWidth={1.5} />
-                             </div>
-                             <div>
-                                <p className="font-black text-2xl group-hover:text-white transition-colors">{emp.name}</p>
-                                <p className="text-sm font-mono text-slate-500 mt-2 tracking-tighter opacity-60 group-hover:opacity-100 transition-opacity">{emp.address}</p>
-                             </div>
-                          </div>
-                          <div className="text-right">
-                             <p className="font-black text-4xl tracking-tighter">{emp.salary} <span className="text-xs text-emerald-500 uppercase italic ml-1 font-black">ETH</span></p>
-                             <div className="flex items-center justify-end gap-3 mt-3">
-                                <span className="text-[10px] font-black text-emerald-500 border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 rounded-xl uppercase tracking-[0.2em]">Active Settlement</span>
-                             </div>
-                          </div>
-                        </motion.div>
+                        <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
+                          <td className="py-4 font-bold text-slate-200">{emp.name}</td>
+                          <td className="py-4 font-mono text-xs text-slate-500">{emp.address.slice(0,20)}...</td>
+                          <td className="py-4 text-right font-bold text-blue-400">{emp.salary} ETH</td>
+                          <td className="py-4 text-right">
+                            <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider">Active</span>
+                          </td>
+                        </tr>
                       ))
                     )}
-                  </AnimatePresence>
-               </div>
+                  </tbody>
+                </table>
+              </div>
             </section>
           </div>
         </div>
 
-        <footer className="mt-48 pb-20 border-t border-white/5 pt-16 flex flex-col lg:flex-row justify-between items-center gap-12 opacity-30 hover:opacity-100 transition-all duration-700">
-           <div className="flex items-center gap-6">
-              <div className="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-slate-500">
-                 <Lucide.Atom size={20} />
-              </div>
-              <p className="text-[11px] text-slate-500 font-black uppercase tracking-[0.5em]">Decentralized Payroll Architecture © 2026</p>
-           </div>
-           
-           <div className="flex gap-16 items-center">
-             {["Infrastructure", "Compliance", "API Protocol", "Network"].map((item, i) => (
-               <span key={i} className="text-[11px] font-black uppercase tracking-[0.3em] cursor-pointer hover:text-emerald-500 transition-colors">{item}</span>
-             ))}
-           </div>
+        <footer className="mt-20 pt-8 border-t border-white/5 flex justify-between items-center text-slate-500">
+          <p className="text-xs uppercase tracking-[0.2em] font-bold">Protocol v2.4.0-Stable</p>
+          <div className="flex gap-8 text-xs font-bold uppercase tracking-widest">
+            <span className="hover:text-white cursor-pointer transition-colors">Audit</span>
+            <span className="hover:text-white cursor-pointer transition-colors">Terms</span>
+            <span className="hover:text-white cursor-pointer transition-colors">Support</span>
+          </div>
         </footer>
-      </div>
+      </main>
     </div>
   );
 }
