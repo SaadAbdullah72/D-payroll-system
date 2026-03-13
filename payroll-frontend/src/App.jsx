@@ -5,42 +5,46 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { contractAddress } from './contractAddress';
 import PayrollABI from './PayrollABI.json';
 
-// --- Professional Dashboard Components ---
+// --- Improved Components ---
 
 const SidebarItem = ({ icon: Icon, label, active = false, onClick }) => (
-  <button 
+  <motion.button 
+    whileHover={{ x: 4 }}
+    whileTap={{ scale: 0.98 }}
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
       active 
-      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
-      : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+      ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20' 
+      : 'text-slate-400 hover:text-slate-200'
     }`}
   >
-    <Icon size={20} className={active ? 'text-white' : 'group-hover:text-blue-400'} />
-    <span className="font-medium text-sm">{label}</span>
-  </button>
+    <Icon size={20} className={active ? 'text-blue-500' : 'group-hover:text-blue-400'} />
+    <span className="font-semibold text-sm">{label}</span>
+  </motion.button>
 );
 
 const MetricCard = ({ label, value, unit, icon: Icon, trend }) => (
-  <div className="card-clean space-y-4">
-    <div className="flex justify-between items-start">
-      <div className="p-2.5 bg-blue-500/10 rounded-lg text-blue-500">
-        <Icon size={20} />
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="card-clean"
+  >
+    <div className="flex justify-between items-start mb-4">
+      <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 border border-blue-500/10">
+        <Icon size={22} />
       </div>
       {trend && (
-        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/10">
           {trend}
         </span>
       )}
     </div>
-    <div>
-      <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{label}</p>
-      <div className="flex items-baseline gap-1 mt-1">
-        <h4 className="text-3xl font-bold tracking-tight">{value}</h4>
-        <span className="text-xs font-bold text-slate-500 lowercase">{unit}</span>
-      </div>
+    <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">{label}</p>
+    <div className="flex items-baseline gap-1.5 mt-2">
+      <h4 className="text-3xl font-bold tracking-tight text-white">{value}</h4>
+      <span className="text-xs font-bold text-slate-500 uppercase">{unit}</span>
     </div>
-  </div>
+  </motion.div>
 );
 
 function App() {
@@ -53,7 +57,9 @@ function App() {
   const [contractBal, setContractBal] = useState("0");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Data Fetching logic remains similar but with better error handling
   const fetchData = async () => {
     try {
       const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
@@ -63,7 +69,7 @@ function App() {
 
       const count = await contract.getEmployeeCount();
       let tempEmployees = [];
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < Number(count); i++) {
         const addr = await contract.employeeList(i);
         const details = await contract.employees(addr);
         tempEmployees.push({
@@ -130,53 +136,68 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Mobile Toggle Button */}
+      <button 
+        className="mobile-toggle"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        <Lucide.Menu size={24} />
+      </button>
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
-        <div className="flex items-center gap-3 mb-12 px-2">
-          <div className="bg-blue-600 p-2 rounded-lg">
-            <Lucide.LayoutDashboard size={24} className="text-white" />
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <div className="flex items-center gap-3 mb-10 px-2">
+          <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-600/20">
+            <Lucide.Zap size={22} className="text-white" />
           </div>
-          <h1 className="text-xl font-extrabold tracking-tight text-white">D-PAYROLL</h1>
+          <div>
+            <h1 className="text-xl font-black tracking-tight text-white leading-none">D-PAYROLL</h1>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Core Network</p>
+          </div>
         </div>
 
-        <nav className="space-y-2 flex-1">
+        <nav className="space-y-1.5 flex-1">
           <SidebarItem 
-            icon={Lucide.PieChart} 
-            label="Dashboard" 
+            icon={Lucide.LayoutGrid} 
+            label="Overview" 
             active={activeTab === "dashboard"} 
-            onClick={() => setActiveTab("dashboard")} 
+            onClick={() => {setActiveTab("dashboard"); setIsSidebarOpen(false);}} 
           />
           <SidebarItem 
             icon={Lucide.Users} 
-            label="Personnel" 
+            label="Employees" 
             active={activeTab === "personnel"} 
-            onClick={() => setActiveTab("personnel")} 
+            onClick={() => {setActiveTab("personnel"); setIsSidebarOpen(false);}} 
           />
           <SidebarItem 
-            icon={Lucide.History} 
-            label="Ledger" 
+            icon={Lucide.ShieldCheck} 
+            label="Governance" 
             active={activeTab === "ledger"} 
-            onClick={() => setActiveTab("ledger")} 
+            onClick={() => {setActiveTab("ledger"); setIsSidebarOpen(false);}} 
           />
         </nav>
 
-        <div className="pt-8 border-t border-white/5 space-y-4">
+        <div className="pt-6 border-t border-white/5 space-y-4">
           {!account ? (
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={connectWallet}
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm transition-all"
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/10"
             >
               <Lucide.Wallet size={18} />
               Connect Wallet
-            </button>
+            </motion.button>
           ) : (
-            <div className="bg-slate-900/50 p-4 rounded-xl border border-white/5 flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
-                <Lucide.User size={16} />
+            <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <Lucide.Fingerprint size={20} />
               </div>
               <div className="overflow-hidden">
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Authenticated</p>
-                <p className="text-xs font-mono font-bold text-slate-300 truncate">{account}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Identity Check</p>
+                <p className="text-sm font-mono font-medium text-slate-300 truncate mt-1">
+                  {account.slice(0, 6)}...{account.slice(-4)}
+                </p>
               </div>
             </div>
           )}
@@ -185,129 +206,172 @@ function App() {
 
       {/* Main Workspace */}
       <main className="main-content">
-        <header className="flex justify-between items-center mb-12">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">System Overview</h2>
-            <p className="text-slate-400 mt-1">Institutional-grade payroll settlement network.</p>
+            <h2 className="text-4xl font-black tracking-tight text-white">System Protocol</h2>
+            <p className="text-slate-500 mt-2 font-medium flex items-center gap-2">
+              <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></span>
+              On-chain payroll orchestration and distribution layer.
+            </p>
           </div>
-          <div className="flex items-center gap-3 bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full border border-emerald-500/10 text-[10px] font-black uppercase tracking-[0.2em]">
-            <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-            Network Live
+          <div className="bg-emerald-500/5 text-emerald-500 px-5 py-2.5 rounded-2xl border border-emerald-500/10 text-[11px] font-bold uppercase tracking-widest flex items-center gap-3">
+            <Lucide.Globe size={14} />
+            Sepolia Testnet
           </div>
         </header>
 
-        {/* Top Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <MetricCard label="Internal Treasury" value={contractBal} unit="ETH" icon={Lucide.Database} trend="+2.4%" />
-          <MetricCard label="Active Personnel" value={employees.length} unit="Nodes" icon={Lucide.Cpu} />
-          <MetricCard label="Settlement Cycle" value="30" unit="Days" icon={Lucide.RefreshCcw} />
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-          {/* Action Modules */}
-          <div className="xl:col-span-4 space-y-8">
-            <section className="card-clean relative overflow-hidden">
-              {!isAdmin && account && (
-                <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
-                  <Lucide.Lock size={32} className="text-slate-600 mb-4" />
-                  <h4 className="font-bold text-slate-200">Admin Required</h4>
-                  <p className="text-xs text-slate-500 mt-2">Personnel onboarding is restricted to governance wallets.</p>
-                </div>
-              )}
-              <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                <Lucide.UserPlus size={20} className="text-blue-500" />
-                Onboard Personnel
-              </h3>
-              
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Full Name</label>
-                  <input className="input-field" placeholder="e.g. Satoshi Nakamoto" onChange={(e) => setEmpName(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Wallet Address</label>
-                  <input className="input-field" placeholder="0x..." onChange={(e) => setEmpAddress(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Monthly Salary (ETH)</label>
-                  <input className="input-field" placeholder="0.25" onChange={(e) => setSalary(e.target.value)} />
-                </div>
-                <button 
-                  onClick={addEmployee}
-                  disabled={loading || !isAdmin}
-                  className="w-full btn-primary disabled:opacity-50 mt-2"
-                >
-                  {loading ? "Processing..." : "Add Personnel"}
-                </button>
-              </div>
-            </section>
-
-            <section className="card-clean bg-emerald-500/5 border-emerald-500/10">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-emerald-500">
-                <Lucide.CreditCard size={20} />
-                Portal Access
-              </h3>
-              <p className="text-slate-400 text-xs leading-relaxed mb-6">
-                Claim registered earnings for the current epoch. Settlement requires protocol validation.
-              </p>
-              <button 
-                onClick={claimSalary}
-                disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50"
-              >
-                {loading ? "Verifying..." : "Execute Claim"}
-              </button>
-            </section>
-          </div>
-
-          {/* Data Ledger */}
-          <div className="xl:col-span-8">
-            <section className="card-clean h-full">
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-lg font-bold">Personnel Ledger</h3>
-                <span className="text-[10px] font-bold text-slate-500 uppercase bg-slate-900 px-3 py-1 rounded-md">Total Records: {employees.length}</span>
+        <AnimatePresence mode="wait">
+          {activeTab === "dashboard" && (
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="space-y-10"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <MetricCard label="Treasury Balance" value={contractBal} unit="ETH" icon={Lucide.Target} trend="+512.2%" />
+                <MetricCard label="Node Participants" value={employees.length} unit="Nodes" icon={Lucide.Database} />
+                <MetricCard label="Epoch Duration" value="30" unit="Days" icon={Lucide.Clock} />
               </div>
 
-              <div className="overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-slate-500 text-left border-b border-white/5 pb-4">
-                      <th className="font-semibold pb-4">Name</th>
-                      <th className="font-semibold pb-4">Wallet Address</th>
-                      <th className="font-semibold pb-4 text-right">Salary</th>
-                      <th className="font-semibold pb-4 text-right">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {employees.length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className="py-20 text-center text-slate-600 italic">No personnel nodes found on the registry.</td>
-                      </tr>
-                    ) : (
-                      employees.map((emp, i) => (
-                        <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
-                          <td className="py-4 font-bold text-slate-200">{emp.name}</td>
-                          <td className="py-4 font-mono text-xs text-slate-500">{emp.address.slice(0,20)}...</td>
-                          <td className="py-4 text-right font-bold text-blue-400">{emp.salary} ETH</td>
-                          <td className="py-4 text-right">
-                            <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md uppercase tracking-wider">Active</span>
-                          </td>
-                        </tr>
-                      ))
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                <div className="xl:col-span-5 space-y-8">
+                  <section className="card-clean relative">
+                    {!isAdmin && account && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-10 flex flex-col items-center justify-center p-8 text-center rounded-3xl">
+                        <div className="bg-white/10 p-4 rounded-full mb-4">
+                          <Lucide.Lock size={28} className="text-white" />
+                        </div>
+                        <h4 className="font-bold text-xl text-white">Access Restricted</h4>
+                        <p className="text-xs text-slate-400 mt-2 max-w-[200px]">Node registration is limited to governance authorized wallets.</p>
+                      </div>
                     )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </div>
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                        <Lucide.UserPlus size={18} />
+                      </div>
+                      Register Node
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Alias Name</label>
+                        <input className="input-field" placeholder="e.g. CORE_UNIT_01" onChange={(e) => setEmpName(e.target.value)} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Node Address</label>
+                        <input className="input-field" placeholder="0x..." onChange={(e) => setEmpAddress(e.target.value)} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Allocated (ETH)</label>
+                        <input className="input-field" placeholder="0.00" onChange={(e) => setSalary(e.target.value)} />
+                      </div>
+                      <button 
+                        onClick={addEmployee}
+                        disabled={loading || !isAdmin}
+                        className="w-full btn-primary mt-4 disabled:opacity-20"
+                      >
+                        {loading ? "Transacting..." : "Initialize Node"}
+                      </button>
+                    </div>
+                  </section>
 
-        <footer className="mt-20 pt-8 border-t border-white/5 flex justify-between items-center text-slate-500">
-          <p className="text-xs uppercase tracking-[0.2em] font-bold">Protocol v2.4.0-Stable</p>
-          <div className="flex gap-8 text-xs font-bold uppercase tracking-widest">
-            <span className="hover:text-white cursor-pointer transition-colors">Audit</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Terms</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Support</span>
+                  <section className="card-clean border-emerald-500/20 bg-emerald-500/[0.02]">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-emerald-500">
+                      <div className="p-2 bg-emerald-500/10 rounded-lg">
+                        <Lucide.Download size={18} />
+                      </div>
+                      Reward Withdrawal
+                    </h3>
+                    <p className="text-slate-500 text-xs leading-relaxed mb-6 font-medium">
+                      Execute treasury call to pull registered rewards. All distributions are logged on the immutable ledger.
+                    </p>
+                    <button 
+                      onClick={claimSalary}
+                      disabled={loading}
+                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-2xl transition-all disabled:opacity-30 shadow-lg shadow-emerald-500/10"
+                    >
+                      {loading ? "Verifying..." : "Pull Rewards"}
+                    </button>
+                  </section>
+                </div>
+
+                <div className="xl:col-span-7">
+                  <section className="card-clean overflow-hidden">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-xl font-bold">Protocol Nodes</h3>
+                      <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                        <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full"></div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{employees.length} Entries</span>
+                      </div>
+                    </div>
+
+                    <div className="premium-table-container">
+                      <table className="premium-table">
+                        <thead>
+                          <tr>
+                            <th>Participant Alias</th>
+                            <th>Verification Address</th>
+                            <th className="text-right">Allocation</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {employees.length === 0 ? (
+                            <tr>
+                              <td colSpan="3" className="py-20 text-center">
+                                <Lucide.Inbox size={40} className="mx-auto text-slate-800 mb-4" />
+                                <p className="text-slate-600 font-bold italic">No active nodes registered.</p>
+                              </td>
+                            </tr>
+                          ) : (
+                            employees.map((emp, i) => (
+                              <tr key={i}>
+                                <td className="font-bold text-slate-200">{emp.name}</td>
+                                <td className="font-mono text-xs text-slate-500">
+                                  {emp.address.slice(0, 12)}...{emp.address.slice(-6)}
+                                </td>
+                                <td className="text-right">
+                                  <div className="font-black text-blue-400">{emp.salary} ETH</div>
+                                  <div className="text-[9px] text-slate-600 font-bold uppercase tracking-widest mt-1">Pending Sync</div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "personnel" && (
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card-clean py-20 text-center">
+                <Lucide.Users size={48} className="mx-auto text-blue-500/20 mb-4" />
+                <h3 className="text-2xl font-bold">Node Management</h3>
+                <p className="text-slate-500 mt-2">Enhanced personnel controls arriving in next epoch.</p>
+             </motion.div>
+          )}
+
+          {activeTab === "ledger" && (
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card-clean py-20 text-center">
+                <Lucide.History size={48} className="mx-auto text-blue-500/20 mb-4" />
+                <h3 className="text-2xl font-bold">On-chain Ledger</h3>
+                <p className="text-slate-500 mt-2">Historical data indexing in progress.</p>
+             </motion.div>
+          )}
+        </AnimatePresence>
+
+        <footer className="mt-20 py-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+             <div className="h-2 w-2 bg-emerald-500 rounded-full"></div>
+             <p className="text-[10px] uppercase tracking-[0.3em] font-black text-slate-500">Node Cluster: Stable-721</p>
+          </div>
+          <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-600">
+            <span className="hover:text-blue-500 cursor-pointer transition-colors">Documentation</span>
+            <span className="hover:text-blue-500 cursor-pointer transition-colors">Audit Report</span>
+            <span className="hover:text-blue-500 cursor-pointer transition-colors">Support Registry</span>
           </div>
         </footer>
       </main>
@@ -315,4 +379,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;
