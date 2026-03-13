@@ -2,14 +2,20 @@
 
 :root {
   --bg-dark: 240 10% 3.9%;
-  --bg-card: 240 10% 6%;
+  --bg-card: 240 10% 5%;
   --primary: 217.2 91.2% 59.8%;
   --primary-foreground: 222.2 47.4% 11.2%;
-  --accent: 240 4.8% 15.9%;
+  --accent: 240 4.8% 10%;
   --accent-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --muted: 240 3.7% 15.9%;
+  --border: 240 3.7% 12%;
+  --muted: 240 3.7% 10%;
   --muted-foreground: 240 5% 64.9%;
+  
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2.5rem;
+  --spacing-xl: 4rem;
 }
 
 * {
@@ -21,25 +27,29 @@
 
 body {
   background-color: hsl(var(--bg-dark));
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(217, 91%, 60%, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(240, 10%, 6%, 0.05) 0px, transparent 50%);
   color: white;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
 /* Glassmorphism Utilities */
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.2);
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Custom Scrollbar */
